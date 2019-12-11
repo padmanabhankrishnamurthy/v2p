@@ -76,8 +76,7 @@ def move_phoneme_files():
                     new_txt_file_name = txt_file_name[:txt_file_name.find('.txt')] + '_phoneme.txt'
                     os.rename(txt_file, video_dataset_path + directory_name + '/' + new_txt_file_name)
 
-
-
+generate_phoneme_files()
 
 
 
