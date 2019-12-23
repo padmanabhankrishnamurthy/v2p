@@ -60,16 +60,21 @@ def extract_mouth_crop(file:str, show_crop = False, visualize = False):
                 cv2.waitKey(50)
 
     if not broken:
-        mouth_data = np.array(mouth_data)
-        print(mouth_data.shape)
-        return mouth_data
+        try:
+            mouth_data = np.array(mouth_data)
+            print(mouth_data.shape)
+            return mouth_data
+        except ValueError:
+            return False
     else:
         return False
 
-# sample_video = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3/0ZfSOArXbGQ/00001.mp4'
-# extract_mouth_crop(sample_video, False, True)
+# sample_video = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3/eZj5n8ScTkI/00005.mp4'
+# extract_mouth_crop(sample_video, False, False)
 
 total_videos, processed_videos = 0,0
+explored_dirs = []
+
 for dir in os.listdir(videos_path):
     speaker_name = dir
     dir = os.path.join(videos_path, speaker_name)
@@ -87,7 +92,12 @@ for dir in os.listdir(videos_path):
             file = os.path.join(dir, video_name)
             print('=====', file, '=======')
 
-            mouth_crop_array = extract_mouth_crop(file)
+            if dir not in explored_dirs:
+                mouth_crop_array = extract_mouth_crop(file)
+            else:
+                processed_videos+=1
+                print(Back.GREEN + 'Directory populated and exists at ', mouth_crops_dir + speaker_name, Style.RESET_ALL)
+                continue
 
             if type(mouth_crop_array) == bool:
                 print(Back.RED + 'discard', Style.RESET_ALL)
@@ -98,5 +108,7 @@ for dir in os.listdir(videos_path):
                 print(Back.GREEN + 'processed', Style.RESET_ALL)
 
             print(processed_videos, '/', total_videos, ' : ', int(processed_videos * 100 / total_videos), '%')
+
+    explored_dirs.append(dir)
 
 print('TOTAL VIDEOS : {} \n PROCESSED VIDEOS : {}'.format(total_videos, processed_videos))
