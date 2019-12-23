@@ -72,43 +72,60 @@ def extract_mouth_crop(file:str, show_crop = False, visualize = False):
 # sample_video = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3/eZj5n8ScTkI/00005.mp4'
 # extract_mouth_crop(sample_video, False, False)
 
-total_videos, processed_videos = 0,0
-explored_dirs = []
+# total_videos, processed_videos = 0,0
+# explored_dirs = []
+#
+# for dir in os.listdir(videos_path):
+#     speaker_name = dir
+#     dir = os.path.join(videos_path, speaker_name)
+#
+#     if not os.path.exists(mouth_crops_dir + speaker_name): #create speaker directory in mouth crops directory
+#         os.mkdir(mouth_crops_dir + speaker_name)
+#
+#     if not os.path.isdir(dir): #dont process .DS_Store
+#         continue
+#
+#     for file in os.listdir(dir):
+#         if '.mp4' in file:
+#             total_videos+=1
+#             video_name = file
+#             file = os.path.join(dir, video_name)
+#             print('=====', file, '=======')
+#
+#             if dir not in explored_dirs:
+#                 mouth_crop_array = extract_mouth_crop(file)
+#             else:
+#                 processed_videos+=1
+#                 print(Back.GREEN + 'Directory populated and exists at ', mouth_crops_dir + speaker_name, Style.RESET_ALL)
+#                 continue
+#
+#             if type(mouth_crop_array) == bool:
+#                 print(Back.RED + 'discard', Style.RESET_ALL)
+#             else:
+#                 processed_videos+=1
+#                 if not os.path.exists(mouth_crops_dir + speaker_name + '/' + video_name + '.npy'):
+#                     np.save(mouth_crops_dir + speaker_name + '/' + video_name + '.npy', mouth_crop_array)
+#                 print(Back.GREEN + 'processed', Style.RESET_ALL)
+#
+#             print(processed_videos, '/', total_videos, ' : ', int(processed_videos * 100 / total_videos), '%')
+#
+#     explored_dirs.append(dir)
 
-for dir in os.listdir(videos_path):
-    speaker_name = dir
-    dir = os.path.join(videos_path, speaker_name)
+# print('TOTAL VIDEOS : {} \n PROCESSED VIDEOS : {}'.format(total_videos, processed_videos))
 
-    if not os.path.exists(mouth_crops_dir + speaker_name): #create speaker directory in mouth crops directory
-        os.mkdir(mouth_crops_dir + speaker_name)
+def rename():
+    for speaker in os.listdir(mouth_crops_dir):
+        speaker_name = speaker
+        speaker = os.path.join(mouth_crops_dir, speaker_name)
 
-    if not os.path.isdir(dir): #dont process .DS_Store
-        continue
+        for file in os.listdir(speaker):
+            file_name = file
+            if '.mp4' in file_name:
+                correct_file_name = file_name[:file_name.find('.mp4')] + '.npy'
+                print(correct_file_name)
+                file = os.path.join(speaker, file_name)
 
-    for file in os.listdir(dir):
-        if '.mp4' in file:
-            total_videos+=1
-            video_name = file
-            file = os.path.join(dir, video_name)
-            print('=====', file, '=======')
+                if 'DS_Store' not in file:
+                    os.rename(file, os.path.join(speaker, correct_file_name))
 
-            if dir not in explored_dirs:
-                mouth_crop_array = extract_mouth_crop(file)
-            else:
-                processed_videos+=1
-                print(Back.GREEN + 'Directory populated and exists at ', mouth_crops_dir + speaker_name, Style.RESET_ALL)
-                continue
-
-            if type(mouth_crop_array) == bool:
-                print(Back.RED + 'discard', Style.RESET_ALL)
-            else:
-                processed_videos+=1
-                if not os.path.exists(mouth_crops_dir + speaker_name + '/' + video_name + '.npy'):
-                    np.save(mouth_crops_dir + speaker_name + '/' + video_name + '.npy', mouth_crop_array)
-                print(Back.GREEN + 'processed', Style.RESET_ALL)
-
-            print(processed_videos, '/', total_videos, ' : ', int(processed_videos * 100 / total_videos), '%')
-
-    explored_dirs.append(dir)
-
-print('TOTAL VIDEOS : {} \n PROCESSED VIDEOS : {}'.format(total_videos, processed_videos))
+rename()
