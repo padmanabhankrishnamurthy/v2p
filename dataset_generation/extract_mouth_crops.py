@@ -3,28 +3,34 @@ from imutils import face_utils
 import cv2
 import skvideo.io
 import numpy as np
+import os
 from pprint import pprint
+from colorama import Back, Style
 
-
-frame_annotations_dir = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/lrs3_frame_annotations/test'
-sample_video = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3/0ZfSOArXbGQ/00003.mp4'
-
+videos_path = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3'
+mouth_crops_dir = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/mouth_crops/'
 predictor_path = '/Users/padmanabhankrishnamurthy/PycharmProjects/helen_v2p/data/shape_predictor_68_face_landmarks.dat' #dlib face-landmark predictor; acts upon faces detected by dlib face detector
 
-def extract_mouth_crop(show_crop:bool, visualize:bool):
+def extract_mouth_crop(file:str, show_crop = False, visualize = False):
     detector = dlib.get_frontal_face_detector()
     predictor = dlib.shape_predictor(predictor_path)
 
-    video_data = skvideo.io.vread(sample_video)
-
+    video_data = skvideo.io.vread(file)
+    print(video_data.shape)
     mouth_data = []
 
-    for frame in video_data:
+    broken = False
+
+    for index, frame in enumerate(video_data):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         detected = detector(gray, 1)
         frame_copy = frame #save original frame
-        if(len(detected) <= 0):
-            print('NO FACE DETECTED')
+
+        if(len(detected) <= 0): #if no face detected at a particular frame, the whole video is unusable, don't include it in dataset
+            print(index, ' : NO FACE DETECTED')
+            broken = True
+            break
+
         else:
             shape = predictor(gray, detected[0]) #detected[0] ensures only first detected face is chosen for further processing
             shape = face_utils.shape_to_np(shape) #shape predictor outputs 68 coordinate pairs, each responsible for a particular landmark
@@ -45,12 +51,52 @@ def extract_mouth_crop(show_crop:bool, visualize:bool):
 
             if(show_crop):
                 cv2.imshow('window', crop)
-                cv2.waitKey(100)
+                cv2.waitKey(25)
 
             if(visualize): #only to visualize mouth crops
                 hull = cv2.convexHull(mouth_points) #draw convex hull around mouth
                 cv2.drawContours(frame_copy, [hull], -1, (19, 199, 109), -1)
                 cv2.imshow('window', frame_copy)
-                cv2.waitKey(100)
+                cv2.waitKey(50)
 
-extract_mouth_crop(True, False)
+    if not broken:
+        mouth_data = np.array(mouth_data)
+        print(mouth_data.shape)
+        return mouth_data
+    else:
+        return False
+
+# sample_video = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3/0ZfSOArXbGQ/00001.mp4'
+# extract_mouth_crop(sample_video, False, True)
+
+total_videos, processed_videos = 0,0
+for dir in os.listdir(videos_path):
+    speaker_name = dir
+    dir = os.path.join(videos_path, speaker_name)
+
+    if not os.path.exists(mouth_crops_dir + speaker_name): #create speaker directory in mouth crops directory
+        os.mkdir(mouth_crops_dir + speaker_name)
+
+    if not os.path.isdir(dir): #dont process .DS_Store
+        continue
+
+    for file in os.listdir(dir):
+        if '.mp4' in file:
+            total_videos+=1
+            video_name = file
+            file = os.path.join(dir, video_name)
+            print('=====', file, '=======')
+
+            mouth_crop_array = extract_mouth_crop(file)
+
+            if type(mouth_crop_array) == bool:
+                print(Back.RED + 'discard', Style.RESET_ALL)
+            else:
+                processed_videos+=1
+                if not os.path.exists(mouth_crops_dir + speaker_name + '/' + video_name + '.npy'):
+                    np.save(mouth_crops_dir + speaker_name + '/' + video_name + '.npy', mouth_crop_array)
+                print(Back.GREEN + 'processed', Style.RESET_ALL)
+
+            print(processed_videos, '/', total_videos, ' : ', int(processed_videos * 100 / total_videos), '%')
+
+print('TOTAL VIDEOS : {} \n PROCESSED VIDEOS : {}'.format(total_videos, processed_videos))

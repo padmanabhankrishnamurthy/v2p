@@ -7,7 +7,7 @@ from pprint import pprint
 import ssl
 import os
 from os import path
-from pywiktionary import Wiktionary
+from pywiktionary import Wiktionary #wikt2pron
 
 #resolve SSL Certificate Verification Failure
 ssl._create_default_https_context = ssl._create_unverified_context
