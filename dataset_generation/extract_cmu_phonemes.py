@@ -4,6 +4,7 @@ import os
 import nltk
 import inflect #for spelling out numbers
 from colorama import Back, Style
+from pprint import pprint
 
 '''
 TODO:
@@ -15,6 +16,7 @@ Therefore, currently a trivial mapping as given by the CMUdict will be used.
         print(g2p("we don't really walk anymore"))
 '''
 
+#READ
 #https://www.nltk.org/book/ch02.html
 
 #resolve SSL Certificate Verification Failure
@@ -22,18 +24,26 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 dataset_path = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3'
 phoneme_annotations_path = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/lrs3_annotations/test_phonemes/'
+vocab_path = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/'
 
 #load dictionaries
 cmudict = nltk.corpus.cmudict.dict()
 inverse_dict = []
 for key,value in cmudict.items():
     inverse_dict.append((value, key))
+vocab = []
 
 def word_to_phoneme(word):
     phoneme_seq = []
 
     try:
         phoneme_seq = cmudict[word][0]
+
+        #add phonemes to vocabulary
+        for element in phoneme_seq:
+            if element not in vocab:
+                vocab.append(element)
+
     except KeyError:
         key, remaining = get_longest_vaid_key(word, '')
         # print(key, remaining)
@@ -68,7 +78,7 @@ def phoneme_to_word(key:list):
             return tup[1]
 
 def generate_phoneme_files():
-    ctr = 0
+
     for speaker in os.listdir(dataset_path):
         speaker_name = speaker
         speaker = os.path.join(dataset_path, speaker_name)
@@ -109,10 +119,25 @@ def generate_phoneme_files():
 
                     phoneme_sentence.pop() #remove the extra added space at the end
                     phoneme_sentence_string = ' '.join(phoneme_sentence)
-                    print(first_line, phoneme_sentence, '\n', phoneme_sentence_string, '\n')
+                    # print(first_line, phoneme_sentence, '\n', phoneme_sentence_string, '\n')
 
-                    #overwrite files
+                    #write files
                     # with open(os.path.join(speaker, file_name[:file_name.find('.txt')] + '_phoneme.txt'), 'w') as phoneme_file:
                     #     phoneme_file.write(phoneme_sentence_string)
 
+def save_vocab(path):
+    global vocab
+
+    vocab = sorted(vocab)
+    print(len(vocab))
+    pprint(vocab)
+
+    # write files
+    # with open(os.path.join(path, 'arpabet_vocab.txt'), 'w') as vocab_file:
+    #     for element in vocab:
+    #         vocab_file.write(element + '\n')
+
 # generate_phoneme_files() #UNCOMMENT TO CALL
+# save_vocab(vocab_path)
+
+
