@@ -78,6 +78,7 @@ def phoneme_to_word(key:list):
             return tup[1]
 
 def generate_phoneme_files():
+    max_phoneme_sequence_length = 0
 
     for speaker in os.listdir(dataset_path):
         speaker_name = speaker
@@ -118,12 +119,14 @@ def generate_phoneme_files():
                         phoneme_sentence.extend(phoneme_seq)
 
                     phoneme_sentence.pop() #remove the extra added space at the end
+                    max_phoneme_sequence_length = max(max_phoneme_sequence_length, len(phoneme_sentence))
                     phoneme_sentence_string = ' '.join(phoneme_sentence)
                     # print(first_line, phoneme_sentence, '\n', phoneme_sentence_string, '\n')
 
                     #write files
                     # with open(os.path.join(speaker, file_name[:file_name.find('.txt')] + '_phoneme.txt'), 'w') as phoneme_file:
                     #     phoneme_file.write(phoneme_sentence_string)
+    # print(max_phoneme_sequence_length)
 
 def save_vocab(path):
     global vocab
