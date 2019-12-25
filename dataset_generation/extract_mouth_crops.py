@@ -54,7 +54,7 @@ def extract_mouth_crop(file:str, show_crop = False, visualize = False):
             center = np.mean(mouth_points, axis=0)
             center = (center[1], center[0]) #flip x and y coords of center since cv2 takes y coordinates first
 
-            size = (50,100) #mouth crop size
+            size = (128,128) #mouth crop size - LipNet = 50,100; V2P = 128,128
             start = tuple(int(a - b // 2) for a, b in zip(center, size))
             end = tuple(int(a + b) for a, b in zip(start, size))
             slices = tuple(slice(a, b) for a, b in zip(start, end))
@@ -80,10 +80,6 @@ def extract_mouth_crop(file:str, show_crop = False, visualize = False):
             return False
     else:
         return False
-
-# sample_video = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3/eZj5n8ScTkI/00005.mp4'
-# extract_mouth_crop(sample_video, False, False)
-
 
 explored_dirs = []
 total_videos, processed_videos = 0, 0
@@ -122,9 +118,9 @@ def generate():
                     print(Back.RED + 'discard', Style.RESET_ALL)
                 else:
                     processed_videos+=1
-                    if not os.path.exists(mouth_crops_dir + speaker_name + '/' + video_name + '.npy'):
+                    if not os.path.exists(mouth_crops_dir + speaker_name + '/' + video_name + '_128.npy'):
                         print(Back.BLUE + "WRITING")
-                        # np.save(mouth_crops_dir + speaker_name + '/' + video_name + '.npy', mouth_crop_array)
+                        np.save(mouth_crops_dir + speaker_name + '/' + video_name + '_128.npy', mouth_crop_array)
                     print(Back.GREEN + 'processed', Style.RESET_ALL)
 
                 print(processed_videos, '/', total_videos, ' : ', int(processed_videos * 100 / total_videos), '%')
@@ -141,7 +137,7 @@ def rename():
         for file in os.listdir(speaker):
             file_name = file
             if '.mp4' in file_name:
-                correct_file_name = file_name[:file_name.find('.mp4')] + '.npy'
+                correct_file_name = file_name[:file_name.find('.mp4')] + '_128.npy'
                 print(correct_file_name)
                 file = os.path.join(speaker, file_name)
 
@@ -149,4 +145,7 @@ def rename():
                     os.rename(file, os.path.join(speaker, correct_file_name))
 
 generate()
-rename()
+# rename()
+
+# sample_video = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3/eZj5n8ScTkI/00005.mp4'
+# extract_mouth_crop(sample_video, True, False)
