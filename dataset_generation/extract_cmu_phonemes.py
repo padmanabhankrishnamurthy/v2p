@@ -33,7 +33,7 @@ for key,value in cmudict.items():
     inverse_dict.append((value, key))
 vocab = []
 
-def word_to_phoneme(word):
+def word_to_phoneme(word) -> list:
     phoneme_seq = []
 
     try:
@@ -62,7 +62,7 @@ def word_to_phoneme(word):
 
     return phoneme_seq
 
-def get_longest_vaid_key(word, remaining):
+def get_longest_vaid_key(word, remaining) -> tuple(str, str):
     end = len(word)
     if word[:end] in cmudict.keys():
         return(word, remaining)
@@ -71,7 +71,7 @@ def get_longest_vaid_key(word, remaining):
         remaining = word[end:] + remaining
         return get_longest_vaid_key(word[:end], remaining)
 
-def phoneme_to_word(key:list):
+def phoneme_to_word(key:list) -> str:
     for tup in inverse_dict:
         if tup[0] == key:
             print(tup[1])

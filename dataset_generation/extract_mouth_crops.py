@@ -11,6 +11,18 @@ videos_path = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3'
 mouth_crops_dir = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/mouth_crops/'
 predictor_path = '/Users/padmanabhankrishnamurthy/PycharmProjects/helen_v2p/data/shape_predictor_68_face_landmarks.dat' #dlib face-landmark predictor; acts upon faces detected by dlib face detector
 
+max_frame_count = 0 #155
+
+def count_frames(file:str):
+    global max_frame_count
+    video_data = skvideo.io.vread(file)
+    frames = video_data.shape[0]
+    if frames > max_frame_count:
+        max_frame_count = frames
+        print(Back.GREEN + str(frames), Style.RESET_ALL)
+    else:
+        print(frames)
+
 def extract_mouth_crop(file:str, show_crop = False, visualize = False):
     detector = dlib.get_frontal_face_detector()
     predictor = dlib.shape_predictor(predictor_path)
@@ -90,6 +102,10 @@ def generate():
 
         for file in os.listdir(dir):
             if '.mp4' in file:
+                # # count frames to get max frame
+                # count_frames(os.path.join(dir, file))
+                # continue
+
                 total_videos+=1
                 video_name = file
                 file = os.path.join(dir, video_name)
@@ -108,7 +124,7 @@ def generate():
                     processed_videos+=1
                     if not os.path.exists(mouth_crops_dir + speaker_name + '/' + video_name + '.npy'):
                         print(Back.BLUE + "WRITING")
-                        np.save(mouth_crops_dir + speaker_name + '/' + video_name + '.npy', mouth_crop_array)
+                        # np.save(mouth_crops_dir + speaker_name + '/' + video_name + '.npy', mouth_crop_array)
                     print(Back.GREEN + 'processed', Style.RESET_ALL)
 
                 print(processed_videos, '/', total_videos, ' : ', int(processed_videos * 100 / total_videos), '%')
