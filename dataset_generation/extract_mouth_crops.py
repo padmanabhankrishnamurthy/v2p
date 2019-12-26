@@ -107,6 +107,15 @@ def generate():
                 file = os.path.join(dir, video_name)
                 print('=====', file, '=======')
 
+                if not os.path.exists(os.path.join('/Users/padmanabhankrishnamurthy/Desktop/lrs3/mouth_crops_old', speaker_name, video_name[:video_name.find('.mp4')] + '.npy')):
+                    print(Back.RED + "NOT IN OLD CROPS, SKIPPING", Style.RESET_ALL)
+                    continue
+
+                if os.path.exists(os.path.join(mouth_crops_dir + speaker_name, video_name[:video_name.find('.mp4')] + '_128.npy')):
+                    print(Back.YELLOW + 'Already Processed', Style.RESET_ALL)
+                    continue
+
+
                 if dir not in explored_dirs:
                     mouth_crop_array = extract_mouth_crop(file)
                 else:
@@ -121,6 +130,8 @@ def generate():
                     if not os.path.exists(mouth_crops_dir + speaker_name + '/' + video_name + '_128.npy'):
                         print(Back.BLUE + "WRITING")
                         np.save(mouth_crops_dir + speaker_name + '/' + video_name + '_128.npy', mouth_crop_array)
+                    else:
+                        print(Back.YELLOW + 'Already Processed', Style.RESET_ALL)
                     print(Back.GREEN + 'processed', Style.RESET_ALL)
 
                 print(processed_videos, '/', total_videos, ' : ', int(processed_videos * 100 / total_videos), '%')
@@ -144,7 +155,7 @@ def rename():
                 if 'DS_Store' not in file:
                     os.rename(file, os.path.join(speaker, correct_file_name))
 
-generate()
+# generate()
 # rename()
 
 # sample_video = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3/eZj5n8ScTkI/00005.mp4'

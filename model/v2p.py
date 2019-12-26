@@ -19,12 +19,12 @@ from keras.utils import print_summary
 class v2p():
     def __init__(self, frames:int, channels:int, height:int, width:int, max_seq_length:int, output_size:int):
 
-        self.input_layer = Input(shape=(frames, width, height, channels))
+        self.input_layer = Input(shape=(frames, width, height, channels), name='input_layer')
         #print(self.input_layer.shape)
 
         # self.tmp_pad1 = temporal_padding(x=self.input_layer, padding=(1,1))
         self.pad1 = ZeroPadding3D((1,0,0))(self.input_layer)
-        self.conv1 = Conv3D(filters=64, kernel_size=(3,3,3), strides=(1,2,2))(self.pad1)
+        self.conv1 = Conv3D(filters=64, kernel_size=(3,3,3), strides=(1,2,2))(self.pad1)#(self.input_layer)
         self.norm1 = BatchNormalization()(self.conv1)
         self.act1 = Activation(activation='relu')(self.norm1)
         self.pool1 = MaxPooling3D(pool_size=(1,2,2), strides=(1,2,2))(self.act1)
@@ -81,20 +81,26 @@ class v2p():
 
         self.y_pred = Dense(output_size, activation='softmax')(self.fc1)
 
-        self.input_labels = Input(shape=[max_seq_length])
-        self.input_length = Input(shape=[1], dtype='int64')
-        self.label_length = Input(shape=[1], dtype='int64')
+        self.input_labels = Input(shape=[max_seq_length], name='labels_layer')
+        self.input_length = Input(shape=[1], dtype='int64', name='input_length_layer')
+        self.label_length = Input(shape=[1], dtype='int64', name='label_length_layer')
 
-        # self.loss_out = ctc_batch_cost(self.input_labels, self.y_pred, self.input_length, self.label_length)
-        self.loss_out = Lambda(self.ctc_lambda_function, output_shape=(1,))([self.input_labels, self.y_pred, self.input_length, self.label_length])
+        #keras doesn't support custom loss functions with more than 2 params (y_pred and y_true) => implement CTC loss as a custom keras Lambda layer
+        self.loss_out = Lambda(self.ctc_lambda_function, output_shape=(1,), name='ctc_layer')([self.input_labels, self.y_pred, self.input_length, self.label_length])
 
         self.model = Model(inputs=[self.input_layer, self.input_labels, self.input_length, self.label_length], outputs=self.loss_out)
-        print_summary(self.model, line_length=250)
+        # print_summary(self.model, line_length=250)
 
     def ctc_lambda_function(self, args):
         return ctc_batch_cost(args[0], args[1], args[2], args[3])
 
+    def compile_model(self):
+        adam = Adam(lr=1e-4, epsilon=1e-8)
+        self.model.compile(loss={'ctc_layer': lambda y_true, y_pred : y_pred}, optimizer=adam)
+        return self
+
 
 # print(k.image_data_format())
-model = v2p(75, 3, 128, 128, 116, 68+1)
+
+
 
