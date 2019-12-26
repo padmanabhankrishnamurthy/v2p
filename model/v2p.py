@@ -1,12 +1,13 @@
 from keras import backend as k
 from keras.models import Model
 from keras.layers import Input
-from keras.backend import temporal_padding
+from keras.layers import Masking
 from keras.layers import ZeroPadding3D
 from keras.layers import Conv3D
 from keras.layers import BatchNormalization
 from keras.layers import Activation
 from keras.layers import MaxPooling3D
+from keras.layers import GlobalAveragePooling3D
 from keras.layers import TimeDistributed, Flatten
 from keras.layers import Bidirectional
 from keras.layers import LSTM
@@ -19,7 +20,9 @@ from keras.utils import print_summary
 class v2p():
     def __init__(self, frames:int, channels:int, height:int, width:int, max_seq_length:int, output_size:int):
 
+        self.masking_layer = Masking(mask_value=-1)
         self.input_layer = Input(shape=(frames, width, height, channels), name='input_layer')
+        # self.input_layer = Input(shape=(None, width, height, channels), name='input_layer')
         #print(self.input_layer.shape)
 
         # self.tmp_pad1 = temporal_padding(x=self.input_layer, padding=(1,1))
@@ -60,6 +63,8 @@ class v2p():
         self.act5 = Activation(activation='relu')(self.norm5)
         self.pool5 = MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 1, 1))(self.act5)
         #print(self.pool5.shape)
+
+        self.gap1 = GlobalAveragePooling3D()
 
         self.time_dist1 = TimeDistributed(Flatten())(self.pool5)
         #print(self.time_dist1.shape)

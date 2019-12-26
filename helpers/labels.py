@@ -10,13 +10,13 @@ def get_labels(sentence):
     vocab = [element[:element.find('\n')] for element in vocab]
 
     labels = [vocab.index(element) for element in sentence.split()]
-    og_label_length = len(labels)
+    unpadded_length = len(labels)
     #add padding if necessary
     if len(labels) < MAX_PHONEME_SEQUENCE_LENGTH:
         labels = labels + ([-1.0] * (MAX_PHONEME_SEQUENCE_LENGTH - len(labels)))
 
     # print(labels)
-    return labels, og_label_length
+    return labels, unpadded_length
 
 sentence = 'W IY1 D   L AH1 V   T UW1   HH EH1 L P'
 get_labels(sentence)
