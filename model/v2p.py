@@ -27,7 +27,7 @@ class v2p():
 
         # self.tmp_pad1 = temporal_padding(x=self.input_layer, padding=(1,1))
         self.pad1 = ZeroPadding3D((1,0,0))(self.input_layer)
-        self.conv1 = Conv3D(filters=64, kernel_size=(3,3,3), strides=(1,2,2))(self.pad1)#(self.input_layer)
+        self.conv1 = Conv3D(filters=64, kernel_size=(3,3,3), strides=(1,2,2), kernel_initializer='he_normal')(self.pad1)#(self.input_layer)
         self.norm1 = BatchNormalization()(self.conv1)
         self.act1 = Activation(activation='relu')(self.norm1)
         self.pool1 = MaxPooling3D(pool_size=(1,2,2), strides=(1,2,2))(self.act1)
@@ -35,7 +35,7 @@ class v2p():
 
         # self.tmp_pad2 = temporal_padding(x=self.pool1, padding=(1, 1))
         self.pad2 = ZeroPadding3D((1,0,0))(self.pool1)
-        self.conv2 = Conv3D(filters=128, kernel_size=(3, 3, 3), strides=(1, 1, 1), activation='relu')(self.pad2)
+        self.conv2 = Conv3D(filters=128, kernel_size=(3, 3, 3), strides=(1, 1, 1), activation='relu', kernel_initializer='he_normal')(self.pad2)
         self.norm2 = BatchNormalization()(self.conv2)
         self.act2 = Activation(activation='relu')(self.norm2)
         self.pool2 = MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2))(self.act2)
@@ -43,7 +43,7 @@ class v2p():
 
         # self.tmp_pad3 = temporal_padding(x=self.pool2, padding=(1, 1))
         self.pad3 = ZeroPadding3D((1, 0, 0))(self.pool2)
-        self.conv3 = Conv3D(filters=256, kernel_size=(3, 3, 3), strides=(1, 1, 1), activation='relu')(self.pad3)
+        self.conv3 = Conv3D(filters=256, kernel_size=(3, 3, 3), strides=(1, 1, 1), activation='relu', kernel_initializer='he_normal')(self.pad3)
         self.norm3 = BatchNormalization()(self.conv3)
         self.act3 = Activation(activation='relu')(self.norm3)
         self.pool3 = MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2))(self.act3)
@@ -51,14 +51,14 @@ class v2p():
 
         # self.tmp_pad4 = temporal_padding(x=self.pool3, padding=(1, 1))
         self.pad4 = ZeroPadding3D((1,0,0))(self.pool3)
-        self.conv4 = Conv3D(filters=512, kernel_size=(3, 3, 3), strides=(1, 1, 1), activation='relu')(self.pad4)
+        self.conv4 = Conv3D(filters=512, kernel_size=(3, 3, 3), strides=(1, 1, 1), activation='relu', kernel_initializer='he_normal')(self.pad4)
         self.norm4 = BatchNormalization()(self.conv4)
         self.act4 = Activation(activation='relu')(self.norm4)
         #print(self.act4.shape)
 
         # self.tmp_pad5 = temporal_padding(x=self.act4, padding=(1, 1))
         self.pad5 = ZeroPadding3D((1,0,0))(self.act4)
-        self.conv5 = Conv3D(filters=512, kernel_size=(3, 3, 3), strides=(1, 1, 1))(self.pad5)
+        self.conv5 = Conv3D(filters=512, kernel_size=(3, 3, 3), strides=(1, 1, 1), kernel_initializer='he_normal')(self.pad5)
         self.norm5 = BatchNormalization()(self.conv5)
         self.act5 = Activation(activation='relu')(self.norm5)
         self.pool5 = MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 1, 1))(self.act5)
