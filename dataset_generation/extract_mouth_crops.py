@@ -23,7 +23,7 @@ def count_frames(file:str):
     else:
         print(frames)
 
-def extract_mouth_crop(file:str, show_crop = False, visualize = False):
+def extract_mouth_crop(file:str, show_crop:bool = False, visualize:bool = False):
     detector = dlib.get_frontal_face_detector()
     predictor = dlib.shape_predictor(predictor_path)
 

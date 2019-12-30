@@ -69,15 +69,15 @@ class v2p():
         self.time_dist1 = TimeDistributed(Flatten())(self.pool5)
         #print(self.time_dist1.shape)
 
-        self.bilstm6 = Bidirectional(LSTM(768, activation='relu', return_sequences=True))(self.time_dist1)
+        self.bilstm6 = Bidirectional(LSTM(768, activation='relu', return_sequences=True, kernel_initializer='orthogonal'))(self.time_dist1)
         self.act6 = Activation(activation='relu')(self.bilstm6)
         #print(self.act6.shape)
 
-        self.bilstm7 = Bidirectional(LSTM(768, activation='relu', return_sequences=True))(self.act6)
+        self.bilstm7 = Bidirectional(LSTM(768, activation='relu', return_sequences=True, kernel_initializer='orthogonal'))(self.act6)
         self.act7 = Activation(activation='relu')(self.bilstm7)
         #print(self.act7.shape)
 
-        self.bilstm8 = Bidirectional(LSTM(768, activation='relu', return_sequences=True))(self.act7)
+        self.bilstm8 = Bidirectional(LSTM(768, activation='relu', return_sequences=True, kernel_initializer='orthogonal'))(self.act7)
         self.act8 = Activation(activation='relu')(self.bilstm8)
         #print(self.act8.shape)
 
@@ -104,6 +104,11 @@ class v2p():
         self.model.compile(loss={'ctc_layer': lambda y_true, y_pred : y_pred}, optimizer=adam)
         return self
 
+    def predict(self, input_batch):
+        return self.capture_softmax_output([input_batch, 0])[0]
+
+    def capture_softmax_output(self):
+        return k.function([self.input_layer, k.learning_phase()], [self.y_pred])
 
 # print(k.image_data_format())
 

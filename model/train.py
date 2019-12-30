@@ -3,6 +3,9 @@ import os
 from helpers.labels import get_labels
 from model.v2p import v2p
 from keras.preprocessing.sequence import pad_sequences
+from keras.callbacks import ModelCheckpoint
+from scipy.stats import mode
+
 
 #test training
 np.random.seed(7)
@@ -16,8 +19,8 @@ label_length = []
 
 frame_lengths = []
 
-samples = 10
-frame_count = 75
+samples = 1
+frame_count = 23
 
 mouth_crops_dir = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/mouth_crops'
 labels_dir = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3'
@@ -31,6 +34,7 @@ for speaker in os.listdir(mouth_crops_dir):
     if os.path.isdir(speaker):
         for file in os.listdir(speaker):
             if ctr == samples:
+                # do_nothing_flag = 1
                 break
             file_name = file
             file = os.path.join(speaker, file_name)
@@ -53,8 +57,10 @@ for speaker in os.listdir(mouth_crops_dir):
                 y_data.append(label)
 
                 #input length and label length
-                input_length.append(min(len(video), frame_count))
+                input_length.append(min(len(video), frame_count-1))
                 label_length.append(unpadded_length)
+
+print(np.mean(frame_lengths), np.std(frame_lengths), mode(frame_lengths))
 
 
 x_data = pad_sequences(x_data, maxlen=frame_count, value=-1)
@@ -76,10 +82,8 @@ def print_shapes(index = 0):
         else:
             print(array.shape)
 
-print_shapes(8)
-
 V2P = v2p(frame_count, 3, 128, 128, 116, 68+1)
 V2P.compile_model()
 # print_summary(V2P.model, line_length=125)
-V2P.model.fit(x={'input_layer':x_data, 'labels_layer':y_data, 'input_length_layer':input_length, 'label_length_layer':label_length}, shuffle=False, y={'ctc_layer':np.zeros([len(x_data)])}, epochs=10, batch_size=10)
-# V2P.model.save(filepath=os.path.join(weights_path, 'test_model_2.hdf5'))
+model_checkpoint = ModelCheckpoint(filepath=os.path.join(weights_path, '0Fi_006_weights.hdf5'), monitor='loss', save_best_only=True)
+V2P.model.fit(x={'input_layer':x_data, 'labels_layer':y_data, 'input_length_layer':input_length, 'label_length_layer':label_length}, shuffle=False, y={'ctc_layer':np.zeros([len(x_data)])}, epochs=50, batch_size=16, callbacks=[model_checkpoint])
