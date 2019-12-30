@@ -62,7 +62,7 @@ def word_to_phoneme(word) -> list:
 
     return phoneme_seq
 
-def get_longest_vaid_key(word, remaining) -> tuple(str, str):
+def get_longest_vaid_key(word, remaining) -> tuple:
     end = len(word)
     if word[:end] in cmudict.keys():
         return(word, remaining)

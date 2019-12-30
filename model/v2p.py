@@ -107,6 +107,7 @@ class v2p():
     def predict(self, input_batch):
         return self.capture_softmax_output([input_batch, 0])[0]
 
+    @property
     def capture_softmax_output(self):
         return k.function([self.input_layer, k.learning_phase()], [self.y_pred])
 
