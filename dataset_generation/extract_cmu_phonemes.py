@@ -33,6 +33,9 @@ for key,value in cmudict.items():
     inverse_dict.append((value, key))
 vocab = []
 
+str = 'we\'d love to help'
+print([cmudict[word] for word in str.split()])
+
 def word_to_phoneme(word) -> list:
     phoneme_seq = []
 
