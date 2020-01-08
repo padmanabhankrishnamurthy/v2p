@@ -55,7 +55,7 @@ def generate_phoneme_files():
                                                     break
                                             phoneme_translation+=phoneme
                                             print(phoneme)
-                                new_file.write(phoneme_translation)
+                                # new_file.write(phoneme_translation)
                             else:
                                 print('Phoneme transcription already exists at {}'.format(phoneme_annotations_path + directory_name + '/' + txt_file_name + '.txt'))
                     print('===============')

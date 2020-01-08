@@ -34,7 +34,7 @@ for key,value in cmudict.items():
 vocab = []
 
 str = 'we\'d love to help'
-print([cmudict[word] for word in str.split()])
+# print([cmudict[word] for word in str.split()])
 
 def word_to_phoneme(word) -> list:
     phoneme_seq = []
@@ -146,4 +146,4 @@ def save_vocab(path):
 # generate_phoneme_files() #UNCOMMENT TO CALL
 # save_vocab(vocab_path)
 
-
+# word_to_phoneme('wikipedia')
