@@ -37,9 +37,9 @@ for speaker in os.listdir(mouth_crops_dir):
 
     if os.path.isdir(speaker):
         for file in os.listdir(speaker):
-            if ctr == samples:
-                # do_nothing_flag = 1
-                break
+            if ctr == samples: #comment out do nothing flag to take only 'samples' samples; comment out 'break' to take all samples satisfying particular conditions set out below
+                do_nothing_flag = 1
+                # break
 
             file_name = file
             file = os.path.join(speaker, file_name)
