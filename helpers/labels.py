@@ -32,7 +32,7 @@ def get_labels(sentence):
 
     # print(split)
     labels = [vocab.index(element) for element in split]
-    print(labels)
+    # print(labels)
     unpadded_length = len(labels)
     #add padding if necessary
     if len(labels) < MAX_PHONEME_SEQUENCE_LENGTH:
