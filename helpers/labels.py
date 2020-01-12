@@ -4,7 +4,7 @@ Helper Function for Generating Labels given a Sentence
 import numpy as np
 from pprint import pprint
 
-MAX_PHONEME_SEQUENCE_LENGTH = 116 #actually 116
+MAX_PHONEME_SEQUENCE_LENGTH = 19 #actually 116
 
 def get_labels(sentence):
     vocab = open('/Users/padmanabhankrishnamurthy/Desktop/lrs3/arpabet_vocab.txt', 'r').readlines()
@@ -30,10 +30,9 @@ def get_labels(sentence):
     #             # print(split)
     #             # break
 
-    # print(split)
     labels = [vocab.index(element) for element in split]
-    # print(labels)
     unpadded_length = len(labels)
+
     #add padding if necessary
     if len(labels) < MAX_PHONEME_SEQUENCE_LENGTH:
         labels = labels + ([-1.0] * (MAX_PHONEME_SEQUENCE_LENGTH - len(labels)))

@@ -15,6 +15,7 @@ from keras.layers import Dense
 from keras.layers import Lambda
 from keras.backend import ctc_batch_cost
 from keras.optimizers import Adam
+from keras.utils import print_summary
 from keras_contrib.layers.normalization.groupnormalization import GroupNormalization
 
 
@@ -70,24 +71,24 @@ class v2p():
         self.pool5 = MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 1, 1))(self.act5)
         #print(self.pool5.shape)
 
-        self.gap1 = GlobalAveragePooling3D()
+        # self.gap1 = GlobalAveragePooling3D()
 
         self.time_dist1 = TimeDistributed(Flatten())(self.pool5)
         #print(self.time_dist1.shape)
 
-        self.bilstm6 = Bidirectional(LSTM(768, activation='relu', return_sequences=True, kernel_initializer='orthogonal'))(self.time_dist1)
+        self.bilstm6 = Bidirectional(LSTM(768, activation='relu', return_sequences=True, kernel_initializer='orthogonal'), merge_mode='concat')(self.time_dist1)
         self.norm6 = BatchNormalization()(self.bilstm6)
         # self.norm6 = GroupNormalization(groups=2)(self.bilstm6)
         self.act6 = Activation(activation='relu')(self.norm6)
         #print(self.act6.shape)
 
-        self.bilstm7 = Bidirectional(LSTM(768, activation='relu', return_sequences=True, kernel_initializer='orthogonal'))(self.act6)
+        self.bilstm7 = Bidirectional(LSTM(768, activation='relu', return_sequences=True, kernel_initializer='orthogonal'), merge_mode='concat')(self.act6)
         self.norm7 = BatchNormalization()(self.bilstm7)
         # self.norm7 = GroupNormalization(groups=2)(self.bilstm7)
         self.act7 = Activation(activation='relu')(self.norm7)
         #print(self.act7.shape)
 
-        self.bilstm8 = Bidirectional(LSTM(768, activation='relu', return_sequences=True, kernel_initializer='orthogonal'))(self.act7)
+        self.bilstm8 = Bidirectional(LSTM(768, activation='relu', return_sequences=True, kernel_initializer='orthogonal'), merge_mode='concat')(self.act7)
         self.norm8 = BatchNormalization()(self.bilstm8)
         # self.norm8 = GroupNormalization(groups=2)(self.bilstm8)
         self.act8 = Activation(activation='relu')(self.norm8)
@@ -109,10 +110,12 @@ class v2p():
         self.loss_out = Lambda(self.ctc_lambda_function, output_shape=(1,), name='ctc_layer')([self.input_labels, self.y_pred, self.input_length, self.label_length])
 
         self.model = Model(inputs=[self.input_layer, self.input_labels, self.input_length, self.label_length], outputs=self.loss_out)
-        # print_summary(self.model, line_length=250)
+        # print_summary(self.model, line_length=150)
 
     def ctc_lambda_function(self, args):
-        return ctc_batch_cost(args[0], args[1], args[2], args[3])
+        input_labels, y_pred, input_length, label_length = args
+        y_pred = y_pred[:, :, :]
+        return ctc_batch_cost(input_labels, y_pred, input_length, label_length)
 
     def compile_model(self):
         adam = Adam(lr=1e-4, epsilon=1e-8) #need to play around with learning rate to avoid nan loss
