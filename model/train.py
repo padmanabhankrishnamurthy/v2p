@@ -23,13 +23,17 @@ label_length = []
 frame_lengths = []
 
 samples = 64
-max_frame_count = 23
-max_seq_length = 19
+max_frame_count = 91
+max_seq_length = 24
 
 mouth_crops_dir = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/mouth_crops'
-labels_dir = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3'
+labels_dir = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/labels_only'
 weights_path = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/weights'
 tensorboard_log_dir = '/Users/padmanabhankrishnamurthy/PycharmProjects/helen_v2p/data/tensorboard_logs/'
+
+mouth_crops_dir = '/Users/padmanabhankrishnamurthy/Desktop/s_demo_data/mouth_crops'
+labels_dir = '/Users/padmanabhankrishnamurthy/Desktop/s_demo_data/labels'
+weights_path = '/Users/padmanabhankrishnamurthy/Desktop/s_demo_data/weights'
 
 ctr = 0
 for speaker in os.listdir(mouth_crops_dir):
@@ -72,13 +76,14 @@ for speaker in os.listdir(mouth_crops_dir):
                 # if unpadded_length < 13:
                 #     continue
 
-                ctr+=1
-                print(ctr, speaker_name, file_name, len(video), unpadded_length)
-
+                #ACTUAL DATA GENERATION - IMPORTANT
                 #add each video thrice - desparate times etc.
 
-                for i in range(3):
-                    # ctr+=1
+                times_to_add = 3 if ctr >= 8 else 1
+
+                for i in range(times_to_add):
+                    ctr+=1
+                    print(ctr, speaker_name, file_name, len(video), unpadded_length)
                     #x and y data
                     x_data.append(video)
                     y_data.append(label)
@@ -87,6 +92,8 @@ for speaker in os.listdir(mouth_crops_dir):
                     # input_length.append(min(len(video), max_frame_count))
                     input_length.append(len(video))
                     label_length.append(unpadded_length)
+
+                print('=====================')
 
 print('\n', np.max(frame_lengths), np.mean(frame_lengths), np.std(frame_lengths), mode(frame_lengths))
 print(np.max(label_length), np.mean(label_length), np.std(label_length), mode(label_length), '\n')
@@ -119,7 +126,7 @@ print_shapes()
 
 V2P = v2p(max_frame_count, 3, 128, 128, max_seq_length, 68 + 1)
 V2P = V2P.compile_model()
-V2P.model.load_weights('/Users/padmanabhankrishnamurthy/Desktop/lrs3/weights/11_Jan_21_26.hdf5')
+# V2P.model.load_weights('/Users/padmanabhankrishnamurthy/Desktop/lrs3/weights/13_Jan_15_34.hdf5')
 # print_summary(V2P.model, line_length=125)
 tensorboard = TensorBoard(log_dir=tensorboard_log_dir)
 model_checkpoint = ModelCheckpoint(filepath=os.path.join(weights_path, '{}.hdf5'.format(datetime.now().strftime('%d_%b_%H_%M'))), monitor='loss', save_best_only=True)

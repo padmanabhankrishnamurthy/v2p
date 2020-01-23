@@ -33,7 +33,7 @@ for key,value in cmudict.items():
     inverse_dict.append((value, key))
 vocab = []
 
-str = 'we\'d love to help'
+# str = 'good morning san francisco'
 # print([cmudict[word] for word in str.split()])
 
 def word_to_phoneme(word) -> list:
@@ -58,7 +58,7 @@ def word_to_phoneme(word) -> list:
         # print(seq_part_2)
         phoneme_seq = seq_part_1 + seq_part_2
 
-    # print(phoneme_seq)
+    print(phoneme_seq)
 
     if phoneme_seq[-1] != ' ':
         phoneme_seq.append(' ')
@@ -75,10 +75,15 @@ def get_longest_vaid_key(word, remaining) -> tuple:
         return get_longest_vaid_key(word[:end], remaining)
 
 def phoneme_to_word(key:list) -> str:
+    found = False
     for tup in inverse_dict:
-        if tup[0] == key:
-            print(tup[1])
+        if tup[0][0] == key:
+            # print(tup[1])
+            found = True
             return tup[1]
+    if not found:
+        return None
+
 
 def generate_phoneme_files():
     max_phoneme_sequence_length = 0
@@ -147,3 +152,7 @@ def save_vocab(path):
 # save_vocab(vocab_path)
 
 # word_to_phoneme('wikipedia')
+#
+# word_to_phoneme('good')
+
+# phoneme_to_word(['G', 'UH1', 'D'])

@@ -8,24 +8,36 @@ from keras import backend as k
 from helpers.labels import sequence_from_labels
 from keras.preprocessing.sequence import pad_sequences
 from colorama import Back, Style
+from visualization.visualization import visualize
+from dataset_generation.extract_cmu_phonemes import phoneme_to_word
 
 weights_path = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/weights'
-weights = '11_Jan_21_26.hdf5'
-dataset_dir = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3'
+weights = '[BEST]_11_Jan_21_26.hdf5'
+# dataset_dir = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3'
+labels_dir = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/labels_only'
 mouth_crops_dir = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/mouth_crops'
 
-max_frame_count = 23
-max_seq_len = 19
+vids_dir = '/Users/padmanabhankrishnamurthy/Desktop/s_demo_data/vids'
+weights_path = '/Users/padmanabhankrishnamurthy/Desktop/s_demo_data/weights'
+weights = '23_Jan_19_23.hdf5'
+
+max_frame_count = 91
+max_seq_len = 24
 
 v2p = v2p(max_frame_count, 3, 128, 128, max_seq_len, 68 + 1)
 v2p = v2p.compile_model()
 v2p.model.load_weights(os.path.join(weights_path, weights))
+# v2p.model.load_weights('/Users/padmanabhankrishnamurthy/PycharmProjects/helen_v2p/scratch/21_Jan_15_27.hdf5')
 # print_summary(v2p.model, line_length=200)
 
-def predict(filepath):
+def predict(filepath:str, slice:tuple = None) -> str:
 
     x_data = filepath
     x_data = np.load(x_data)
+
+    if slice:
+        x_data = x_data[slice[0]:slice[1]]
+
     x_data = x_data.astype(np.float32) / 255
     x_data = np.array([x_data])
     print(x_data.shape, end = ' ==> ')
@@ -46,34 +58,62 @@ def predict(filepath):
     decoded = [path.eval(session=k.get_session()) for path in decoded[0]]
     decoded = decoded[0][0]
     print(decoded)
-    print(sequence_from_labels(decoded), '\n')
+    decoded = sequence_from_labels(decoded)
+    print(decoded)
     return decoded
 
-# speaker = 'Zd71719SG8Y'
-# vid = '00001'
-# truth = open(os.path.join(dataset_dir, speaker, vid+'_phoneme.txt'), 'r').readline()
-# print('TRUTH: ', truth, '\n', 'PREDICTED:\n')
-#
-# filepath = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/mouth_crops/{}/{}_128.npy'.format(speaker, vid)
-# sequence = predict(filepath=filepath)
+def predict_batch():
+    for speaker_name in os.listdir(mouth_crops_dir):
+        speaker = os.path.join(mouth_crops_dir, speaker_name)
 
-for speaker_name in os.listdir(mouth_crops_dir):
-    speaker = os.path.join(mouth_crops_dir, speaker_name)
+        if os.path.isdir(speaker):
 
-    if os.path.isdir(speaker):
+            for video_name in os.listdir(speaker):
+                video = os.path.join(speaker, video_name)
+                video_name = video_name[:video_name.find('_128')]
 
-        for video_name in os.listdir(speaker):
-            video = os.path.join(speaker, video_name)
-            video_name = video_name[:video_name.find('_128')]
+                if '_128.npy' in video:
+                    video_data = np.load(video)
 
-            if '_128.npy' in video:
-                video_data = np.load(video)
-                if len(video_data) < 20 or len(video_data) > max_frame_count:
-                    continue
-                truth = open(os.path.join(dataset_dir, speaker_name, video_name+'_phoneme.txt'), 'r').readline()
-                print(Back.BLUE + speaker_name, ' ', video_name,  ' ', len(video_data), Style.RESET_ALL)
-                print(Back.GREEN + 'Truth: ', truth, Style.RESET_ALL)
-                sequence = predict(filepath=video)
+                    if len(video_data) < 20 or len(video_data) > max_frame_count:
+                        continue
+
+                    truth = open(os.path.join(labels_dir, speaker_name, video_name+'_phoneme.txt'), 'r').readline().strip()
+                    print(Back.BLUE + speaker_name, ' ', video_name,  ' ', len(video_data), Style.RESET_ALL)
+                    print(Back.GREEN + 'Truth:', truth, Style.RESET_ALL)
+
+                    sequence = predict(filepath=video)
+                    sequence = sequence_from_labels(sequence)
+                    sequence = sequence.replace('sp', ' ').strip()
+                    if sequence == truth:
+                        print(Back.RED, end='')
+                    print(sequence, Style.RESET_ALL, '\n')
 
 
+def decode_to_regular(sequence):
+    sentence = []
+    word = []
 
+    for phoneme in sequence.split():
+        if phoneme != 'sp':
+            word.append(phoneme)
+        else:
+            sentence.append(word)
+            word = []
+    sentence.append(word) #last word not appended inside loop coz no sp at end of sequence
+    # print("SENTENCE: ", sentence)
+
+    decoded_to_words = []
+    for phoneme_word in sentence:
+        word = phoneme_to_word(phoneme_word)
+        if word:
+            decoded_to_words.append(word)
+        else:
+            decoded_to_words.append(''.join(phoneme_word))
+    print(decoded_to_words)
+    return decoded_to_words
+
+sequence = predict('/Users/padmanabhankrishnamurthy/Desktop/s_demo_data/mouth_crops/pk/pk_gmsf_128.npy')
+# sequence = predict('/Users/padmanabhankrishnamurthy/Desktop/s_demo_data/test_mouth_crops/amrut/amrut_gmsf_128.npy')
+decoded = decode_to_regular(sequence)
+visualize('/Users/padmanabhankrishnamurthy/Downloads/pk_gmsf.mp4', ' '.join(decoded)) #alternatively, visualize sequence

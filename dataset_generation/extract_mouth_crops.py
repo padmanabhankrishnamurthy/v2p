@@ -6,12 +6,17 @@ import numpy as np
 import os
 from pprint import pprint
 from colorama import Back, Style
+from matplotlib import patheffects as path_effects, pyplot as plt
+
 
 videos_path = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3'
 mouth_crops_dir = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/mouth_crops/'
 predictor_path = '/Users/padmanabhankrishnamurthy/PycharmProjects/helen_v2p/data/shape_predictor_68_face_landmarks.dat' #dlib face-landmark predictor; acts upon faces detected by dlib face detector
 
-max_frame_count = 0 #155
+# videos_path = '/Users/padmanabhankrishnamurthy/Desktop/s_demo_data/vids'
+# mouth_crops_dir = '/Users/padmanabhankrishnamurthy/Desktop/s_demo_data/mouth_crops/'
+
+max_frame_count = 91 #155
 
 def count_frames(file:str):
     global max_frame_count
@@ -23,7 +28,7 @@ def count_frames(file:str):
     else:
         print(frames)
 
-def extract_mouth_crop(file:str, show_crop:bool = False, visualize:bool = False):
+def extract_mouth_crop(file:str, show_crop:bool = False, visualize:bool = False, save_path:str=None):
     detector = dlib.get_frontal_face_detector()
     predictor = dlib.shape_predictor(predictor_path)
 
@@ -67,7 +72,7 @@ def extract_mouth_crop(file:str, show_crop:bool = False, visualize:bool = False)
 
             if(visualize): #only to visualize mouth crops
                 hull = cv2.convexHull(mouth_points) #draw convex hull around mouth
-                cv2.drawContours(frame_copy, [hull], -1, (19, 199, 109), -1)
+                cv2.drawContours(frame_copy, [hull], -1, (19, 199, 109), 5)
                 cv2.imshow('window', frame_copy)
                 cv2.waitKey(50)
 
@@ -75,6 +80,11 @@ def extract_mouth_crop(file:str, show_crop:bool = False, visualize:bool = False)
         try:
             mouth_data = np.array(mouth_data)
             print(mouth_data.shape)
+
+            if save_path:
+                print('SAVING')
+                np.save(save_path, mouth_data)
+
             return mouth_data
         except ValueError:
             return False
@@ -108,8 +118,9 @@ def generate():
                 print('=====', file, '=======')
 
                 if not os.path.exists(os.path.join('/Users/padmanabhankrishnamurthy/Desktop/lrs3/mouth_crops_old', speaker_name, video_name[:video_name.find('.mp4')] + '.npy')):
-                    print(Back.RED + "NOT IN OLD CROPS, SKIPPING", Style.RESET_ALL)
-                    continue
+                    do_nothing_flag = 1
+                    # print(Back.RED + "NOT IN OLD CROPS, SKIPPING", Style.RESET_ALL)
+                    # continue
 
                 if os.path.exists(os.path.join(mouth_crops_dir + speaker_name, video_name[:video_name.find('.mp4')] + '_128.npy')):
                     print(Back.YELLOW + 'Already Processed', Style.RESET_ALL)
@@ -158,5 +169,7 @@ def rename():
 # generate()
 # rename()
 
-# sample_video = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3/eZj5n8ScTkI/00005.mp4'
-# extract_mouth_crop(sample_video, True, False)
+sample_video = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3/eZj5n8ScTkI/00005.mp4'
+sample_video = '/Users/padmanabhankrishnamurthy/Desktop/Helen_copy/test3.mpg'
+# extract_mouth_crop(sample_video, False, True)
+extract_mouth_crop('/Users/padmanabhankrishnamurthy/Downloads/amrut_gmsf.mp4', save_path='/Users/padmanabhankrishnamurthy/Desktop/s_demo_data/test_mouth_crops/amrut/amrut_gmsf_128.npy')

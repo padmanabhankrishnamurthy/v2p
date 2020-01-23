@@ -14,7 +14,7 @@ from keras.layers import LSTM
 from keras.layers import Dense
 from keras.layers import Lambda
 from keras.backend import ctc_batch_cost
-from keras.optimizers import Adam
+from keras.optimizers import Adam, RMSprop
 from keras.utils import print_summary
 from keras_contrib.layers.normalization.groupnormalization import GroupNormalization
 
@@ -118,6 +118,7 @@ class v2p():
         return ctc_batch_cost(input_labels, y_pred, input_length, label_length)
 
     def compile_model(self):
+        # rmsprop = RMSprop(lr=1e-4, )
         adam = Adam(lr=1e-4, epsilon=1e-8) #need to play around with learning rate to avoid nan loss
         self.model.compile(loss={'ctc_layer': lambda y_true, y_pred : y_pred}, optimizer=adam)
         return self
