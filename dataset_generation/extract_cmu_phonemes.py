@@ -77,7 +77,7 @@ def get_longest_vaid_key(word, remaining) -> tuple:
 def phoneme_to_word(key:list) -> str:
     found = False
     for tup in inverse_dict:
-        if tup[0][0] == key:
+        if key in tup[0]:
             # print(tup[1])
             found = True
             return tup[1]
@@ -155,4 +155,4 @@ def save_vocab(path):
 #
 # word_to_phoneme('good')
 
-# phoneme_to_word(['G', 'UH1', 'D'])
+phoneme_to_word(['G', 'UH1', 'D'])
