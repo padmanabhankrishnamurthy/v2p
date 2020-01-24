@@ -10,6 +10,7 @@ from keras.preprocessing.sequence import pad_sequences
 from colorama import Back, Style
 from visualization.visualization import visualize
 from dataset_generation.extract_cmu_phonemes import phoneme_to_word
+from dataset_generation.extract_mouth_crops import extract_mouth_crop
 
 weights_path = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/weights'
 weights = '[BEST]_11_Jan_21_26.hdf5'
@@ -18,20 +19,23 @@ labels_dir = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/labels_only'
 mouth_crops_dir = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/mouth_crops'
 
 vids_dir = '/Users/padmanabhankrishnamurthy/Desktop/s_demo_data/vids'
+test_mouth_crops_dir = '/Users/padmanabhankrishnamurthy/Desktop/s_demo_data/test_mouth_crops/pk'
 weights_path = '/Users/padmanabhankrishnamurthy/Desktop/s_demo_data/weights'
 weights = '23_Jan_19_23.hdf5'
 
 max_frame_count = 91
 max_seq_len = 24
 
+print('LOADING MODEL =====>', end = ' ')
 v2p = v2p(max_frame_count, 3, 128, 128, max_seq_len, 68 + 1)
 v2p = v2p.compile_model()
 v2p.model.load_weights(os.path.join(weights_path, weights))
+print("MODEL LOADED")
 # v2p.model.load_weights('/Users/padmanabhankrishnamurthy/PycharmProjects/helen_v2p/scratch/21_Jan_15_27.hdf5')
 # print_summary(v2p.model, line_length=200)
 
 def predict(filepath:str, slice:tuple = None) -> str:
-
+    print('PREDICTING FOR {}'.format(filepath))
     x_data = filepath
     x_data = np.load(x_data)
 
@@ -113,7 +117,8 @@ def decode_to_regular(sequence):
     print(decoded_to_words)
     return decoded_to_words
 
-sequence = predict('/Users/padmanabhankrishnamurthy/Desktop/s_demo_data/mouth_crops/pk/pk_gmsf_128.npy')
-# sequence = predict('/Users/padmanabhankrishnamurthy/Desktop/s_demo_data/test_mouth_crops/amrut/amrut_gmsf_128.npy')
-decoded = decode_to_regular(sequence)
-visualize('/Users/padmanabhankrishnamurthy/Downloads/pk_gmsf.mp4', ' '.join(decoded)) #alternatively, visualize sequence
+vid = '/Users/padmanabhankrishnamurthy/Downloads/pk_gmsf.mp4'
+# extract_mouth_crop(vid, save_path=os.path.join(test_mouth_crops_dir, 'pk_gmsf_128.npy'))
+# sequence = predict(os.path.join(test_mouth_crops_dir, 'pk_gmsf_128.npy'))
+# decoded = decode_to_regular(sequence)
+visualize(vid, ' '.join(['good', 'morning', 'san', 'FRAE0SKOW0'])) #alternatively, visualize sequence

@@ -29,6 +29,7 @@ def count_frames(file:str):
         print(frames)
 
 def extract_mouth_crop(file:str, show_crop:bool = False, visualize:bool = False, save_path:str=None):
+    print('Extracting mouth crops for {}'.format(file))
     detector = dlib.get_frontal_face_detector()
     predictor = dlib.shape_predictor(predictor_path)
 
@@ -172,4 +173,4 @@ def rename():
 sample_video = '/Users/padmanabhankrishnamurthy/Desktop/lrs3/test-3/eZj5n8ScTkI/00005.mp4'
 sample_video = '/Users/padmanabhankrishnamurthy/Desktop/Helen_copy/test3.mpg'
 # extract_mouth_crop(sample_video, False, True)
-extract_mouth_crop('/Users/padmanabhankrishnamurthy/Downloads/amrut_gmsf.mp4', save_path='/Users/padmanabhankrishnamurthy/Desktop/s_demo_data/test_mouth_crops/amrut/amrut_gmsf_128.npy')
+# extract_mouth_crop('/Users/padmanabhankrishnamurthy/Downloads/amrut_gmsf.mp4', save_path='/Users/padmanabhankrishnamurthy/Desktop/s_demo_data/test_mouth_crops/amrut/amrut_gmsf_128.npy')

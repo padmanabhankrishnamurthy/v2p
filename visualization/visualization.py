@@ -29,17 +29,18 @@ def visualize(video:str, subtitle:str):
     img = None
 
     for i, frame in enumerate(video):
-        # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        # detected = detector(gray, 1)
-        # shape = predictor(gray,detected[0])  # detected[0] ensures only first detected face is chosen for further processing
-        # shape = face_utils.shape_to_np(shape)  # shape predictor outputs 68 coordinate pairs, each responsible for a particular landmark
-        # mouth_points = shape[48:68]
-        # hull = cv2.convexHull(mouth_points)  # draw convex hull around mouth
-        # frame = cv2.drawContours(frame, [hull], -1, (100,255,0), 3)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        detected = detector(gray, 1)
+        shape = predictor(gray,detected[0])  # detected[0] ensures only first detected face is chosen for further processing
+        shape = face_utils.shape_to_np(shape)  # shape predictor outputs 68 coordinate pairs, each responsible for a particular landmark
+        mouth_points = shape[48:68]
+        hull = cv2.convexHull(mouth_points)  # draw convex hull around mouth
+        frame = cv2.drawContours(frame, [hull], -1, (100,255,0), 3)
         # cv2.imshow('test', frame)
         # cv2.waitKey(10)
+        video[i] = frame
 
-
+    for i, frame in enumerate(video):
         sub = " ".join(subs[:int(i / inc)])
         text.set_text(sub)
 
